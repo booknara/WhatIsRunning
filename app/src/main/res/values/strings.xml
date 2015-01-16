@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">WhatIsRunning</string>
+
+	<string name="lbl_start">Start!</string>
+	<string name="click_start">Click "Start" button to start checking what app is running</string>
+	<string name="app_manual">Checking... for %1$d second. Please see a logcat information</string>
+	<string name="finished">Finished!</string>
+	<string name="err_unexpected_error">Unexpected error.\nPlease try again.</string>
+
+</resources>

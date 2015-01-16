@@ -1,0 +1,34 @@
+apply plugin: 'com.android.application'
+
+dependencies {
+    // Module dependency
+    // Local binary dependency
+    // Remote binary dependency
+}
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "21.1.2"
+
+    defaultConfig {
+        applicationId "com.booknara.whatisrunning"
+        minSdkVersion 11
+        targetSdkVersion 21
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    defaultConfig {
+        versionCode 1 // default version code
+        versionName "0.1" // default version name
+    }
+}
+
