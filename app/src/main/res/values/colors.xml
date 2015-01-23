@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-	<color name="white">#FFFFFF</color>
-	<color name="yellow">#FFFF00</color>
-	<color name="fuchsia">#FF00FF</color>
-	<color name="red">#FF0000</color>
-	<color name="silver">#C0C0C0</color>
-	<color name="gray">#808080</color>
-	<color name="olive">#808000</color>
-	<color name="purple">#800080</color>
-	<color name="maroon">#800000</color>
-	<color name="aqua">#00FFFF</color>
-	<color name="lime">#00FF00</color>
-	<color name="teal">#008080</color>
-	<color name="green">#008000</color>
-	<color name="blue">#0000FF</color>
-	<color name="navy">#000080</color>
-	<color name="black">#000000</color>
+	<color name="white" tools:ignore="UnusedResources">#FFFFFF</color>
+	<color name="yellow" tools:ignore="UnusedResources">#FFFF00</color>
+	<color name="fuchsia" tools:ignore="UnusedResources">#FF00FF</color>
+	<color name="red" tools:ignore="UnusedResources">#FF0000</color>
+	<color name="silver" tools:ignore="UnusedResources">#C0C0C0</color>
+	<color name="gray" tools:ignore="UnusedResources">#808080</color>
+	<color name="olive" tools:ignore="UnusedResources">#808000</color>
+	<color name="purple" tools:ignore="UnusedResources">#800080</color>
+	<color name="maroon" tools:ignore="UnusedResources">#800000</color>
+	<color name="aqua" tools:ignore="UnusedResources">#00FFFF</color>
+	<color name="lime" tools:ignore="UnusedResources">#00FF00</color>
+	<color name="teal" tools:ignore="UnusedResources">#008080</color>
+	<color name="green" tools:ignore="UnusedResources">#008000</color>
+	<color name="blue" tools:ignore="UnusedResources">#0000FF</color>
+	<color name="navy" tools:ignore="UnusedResources">#000080</color>
+	<color name="black" tools:ignore="UnusedResources">#000000</color>
 
 </resources>
