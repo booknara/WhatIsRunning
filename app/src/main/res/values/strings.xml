@@ -9,4 +9,8 @@
 	<string name="finished">Finished!</string>
 	<string name="err_unexpected_error">Unexpected error.\nPlease try again.</string>
 
+	<string name="menu_start">Start</string>
+	<string name="menu_refresh">Refresh</string>
+	<string name="menu_clear">Clear</string>
+
 </resources>

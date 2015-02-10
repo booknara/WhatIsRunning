@@ -1,5 +1,8 @@
 package com.booknara.whatisrunning;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import android.app.Activity;
@@ -13,69 +16,144 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.booknara.whatisrunning.R;
+import com.booknara.whatisrunning.models.PackageHistory;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class MainActivity extends Activity {
-	private final static String TAG = "MainActivity";
-	private final static int RUNNING_TIME_SEC = 60 * 5; // 5 mins
+	private static final String TAG = MainActivity.class.getSimpleName();
+	private final static int RUNNING_TIME_SEC = 60 * 3; // 3 mins
 
 	// UI Component
-	private TextView statusView;
-	private Button startBtn;
+	private TextView historyView;
+	private MenuItem startMenuItem;
+	private MenuItem clearMenuItem;
+
+	private Realm realm;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		statusView = (TextView) findViewById(R.id.status_text);
-		startBtn = (Button) findViewById(R.id.start_btn);
+		realm = Realm.getInstance(this);
+		historyView = (TextView) findViewById(R.id.status_text);
+		historyView.setMovementMethod(new ScrollingMovementMethod());
 
-		statusView.setText(R.string.click_start);
-		startBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-			try {
-				new ExecutePackageTask().execute(ctx());
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			}
-		});
+		historyView.setText(R.string.click_start);
 	}
 
-	private class ExecutePackageTask extends AsyncTask<Context, Void, Boolean> {
-		private final static String TAG = "MainActivity";
+	@Override
+	protected void onResume() {
+		super.onResume();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		realm.close(); // Remember to close Realm when done.
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.main_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+
+		// This does work
+		startMenuItem = menu.findItem(R.id.action_start);
+		clearMenuItem = menu.findItem(R.id.action_clear);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
+		switch (id) {
+			case R.id.action_refresh:
+				historyView.setText("");
+				displayRunningAppInfo();
+				break;
+			case R.id.action_clear:
+				clearRunningAppInfo();
+				break;
+			case R.id.action_start:
+				new ExecutePackageTask(ctx()).execute(ctx());
+				break;
+		}
+
+		return true;
+	}
+
+	private void clearRunningAppInfo() {
+		realm.beginTransaction();
+		RealmResults<PackageHistory> histories = realm.where(PackageHistory.class).findAll();
+		histories.clear();
+		realm.commitTransaction();
+	}
+
+	private void displayRunningAppInfo() {
+		RealmResults<PackageHistory> histories = realm.where(PackageHistory.class).findAll();
+		for(PackageHistory p: histories) {
+			historyView.append(p.getDate() + ", " + p.getPackageName() + ", " + p.getAppName() + " \n");
+		}
+	}
+
+	public class ExecutePackageTask extends AsyncTask<Context, PackageHistory, Boolean> {
+		private final String TAG = ExecutePackageTask.class.getSimpleName();
+
+		private Context context;
+
+		public ExecutePackageTask(Context context) {
+			this.context = context;
+		}
 
 		@Override
 		protected void onPreExecute() {
-			statusView.setText(getString(R.string.app_manual, RUNNING_TIME_SEC));
-			startBtn.setEnabled(false);
+//			historyView.setText(getString(R.string.app_manual, RUNNING_TIME_SEC));
+//			startBtn.setEnabled(false);
+			startMenuItem.setEnabled(false);
+			clearMenuItem.setEnabled(false);
+		}
+
+		@Override
+		protected void onProgressUpdate(PackageHistory... history) {
+			super.onProgressUpdate(history[0]);
+			insertPacakgeHistory(history[0].getDate(), history[0].getPackageName(), history[0].getAppName());
 		}
 
 		@Override
 		protected Boolean doInBackground(Context... params) {
 			final Context context = params[0].getApplicationContext();
 			for (int i = 0; i < RUNNING_TIME_SEC; i++) {
+				PackageHistory history;
 				if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-					getAppOnForegroundProcess(context);
+					history = getAppOnForegroundProcess(context);
 				} else {
-					getAppOnForeground(context);					
+					history = getAppOnForeground(context);
 				}
 
 				try {
-					// 1 sec timesleep
-					Thread.sleep(1000);
+					// 2 sec timesleep
+					Thread.sleep(2000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+
+				publishProgress(history);
 			}
 
 			return true;
@@ -85,24 +163,25 @@ public class MainActivity extends Activity {
 		protected void onPostExecute(Boolean result) {
 			try {
 				if (!result) {
-					statusView.setText(R.string.err_unexpected_error);
+					Toast.makeText(ctx(), R.string.err_unexpected_error, Toast.LENGTH_LONG).show();
 					Log.e(TAG, "Execution Error");
 				} else {
-					statusView.setText(R.string.finished);
+					Toast.makeText(ctx(), R.string.finished, Toast.LENGTH_LONG).show();
 					Log.i(TAG, "Execution Success");
 				}
 
-				startBtn.setEnabled(true);
+				startMenuItem.setEnabled(true);
+				clearMenuItem.setEnabled(true);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 
-		private boolean getAppOnForeground(Context context) {
+		private PackageHistory getAppOnForeground(Context context) {
 			ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 			List<RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
 			if (appProcesses == null) {
-				return false;
+				return null;
 			}
 
 			ComponentName topActivity;
@@ -110,30 +189,24 @@ public class MainActivity extends Activity {
 			List<ActivityManager.RunningTaskInfo> runningTasks = activityManager.getRunningTasks(10);
 			ActivityManager.RunningTaskInfo currentTask;
 
-			if (runningTasks != null && runningTasks.size() > 0) {
-				currentTask = runningTasks.get(0);
-				topActivity = currentTask.topActivity;
+			if (runningTasks == null || runningTasks.size() <= 0)
+				return null;
 
-				if (topActivity == null)
-					return false;
+			currentTask = runningTasks.get(0);
+			topActivity = currentTask.topActivity;
 
-				String packageName = topActivity.getPackageName();
-				final PackageManager pm = getApplicationContext().getPackageManager();
-				ApplicationInfo ai;
-				try {
-					ai = pm.getApplicationInfo(packageName, 0);
-				} catch (NameNotFoundException e) {
-					ai = null;
-				}
+			if (topActivity == null)
+				return null;
 
-				String applicationName = (String) (ai != null ? pm.getApplicationLabel(ai) : "(unknown)");
-				Log.i(TAG, "Running package name : " + packageName + ", app name : " + applicationName + "Top Activity class name : " + topActivity.getClassName());
-			}
+			String currentTime = getCurrentTime();
+			String packageName = topActivity.getPackageName();
+			String appName = getAppName(packageName);
+			Log.i(TAG, "Running package name : " + packageName + ", app name : " + appName + "Top Activity class name : " + topActivity.getClassName());
 
-			return true;
+			return new PackageHistory(currentTime, packageName, appName);
 		}
 
-		private boolean getAppOnForegroundProcess(Context context) {
+		private PackageHistory getAppOnForegroundProcess(Context context) {
 			ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 		    List list;
 		    int i1 = 0;
@@ -141,18 +214,49 @@ public class MainActivity extends Activity {
 		    try {
 		        list = activityManager.getRunningAppProcesses();
 		    } catch (Exception exception) {
-		        return false;
+		        return null;
 		    }
 
 		    if (((RunningAppProcessInfo)list.get(i1)).pkgList.length != 1) {
-		        return false;
+		        return null;
 		    }
 
+			String currentTime = getCurrentTime();
 		    String packageName = ((android.app.ActivityManager.RunningAppProcessInfo)list.get(i1)).pkgList[0];
-		    Log.d(TAG, "Running package Name : " + packageName);
-		    
-			return true;
+			String appName = getAppName(packageName);
+			Log.i(TAG, "Running package name : " + packageName + ", app name : " + appName);
+
+			return new PackageHistory(currentTime, packageName, appName);
 		}
+
+		private String getAppName(String packageName) {
+			final PackageManager pm = getApplicationContext().getPackageManager();
+			ApplicationInfo ai;
+			try {
+				ai = pm.getApplicationInfo(packageName, 0);
+			} catch (NameNotFoundException e) {
+				ai = null;
+			}
+
+			return (String) (ai != null ? pm.getApplicationLabel(ai) : "(unknown)");
+		}
+
+		private void insertPacakgeHistory(String date, String packageName, String appName) {
+			realm.beginTransaction();
+			PackageHistory history = realm.createObject(PackageHistory.class);
+			history.setDate(date);
+			history.setPackageName(packageName);
+			history.setAppName(appName);
+			realm.commitTransaction();
+		}
+
+		private String getCurrentTime() {
+			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			Date date = new Date();
+
+			return dateFormat.format(date);
+		}
+
 	}
 
 	public Context ctx() {

@@ -4,6 +4,7 @@ dependencies {
     // Module dependency
     // Local binary dependency
     // Remote binary dependency
+    compile 'io.realm:realm-android:0.78.0'
 }
 
 android {
@@ -14,6 +15,8 @@ android {
         applicationId "com.booknara.whatisrunning"
         minSdkVersion 11
         targetSdkVersion 21
+        versionCode 1 // default version code
+        versionName "0.1" // default version name
     }
 
     buildTypes {
@@ -24,11 +27,6 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
-
-    defaultConfig {
-        versionCode 1 // default version code
-        versionName "0.1" // default version name
     }
 }
 
