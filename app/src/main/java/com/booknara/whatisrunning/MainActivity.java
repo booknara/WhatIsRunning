@@ -16,6 +16,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -24,6 +25,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.booknara.whatisrunning.models.PackageHistory;
+import com.booknara.whatisrunning.utils.ShareUtils;
+
+import org.w3c.dom.Text;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -82,15 +86,23 @@ public class MainActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 		switch (id) {
-			case R.id.action_refresh:
+			case R.id.action_view:
 				historyView.setText("");
 				displayRunningAppInfo();
 				break;
 			case R.id.action_clear:
+				historyView.setText("");
 				clearRunningAppInfo();
 				break;
 			case R.id.action_start:
 				new ExecutePackageTask(ctx()).execute(ctx());
+				break;
+			case R.id.action_share:
+				String body = historyView.getText().toString();
+				if (TextUtils.isEmpty(body))
+					Toast.makeText(this, "No contents", Toast.LENGTH_LONG).show();
+				else
+					ShareUtils.share(this, body);
 				break;
 		}
 
@@ -110,6 +122,7 @@ public class MainActivity extends Activity {
 			historyView.append(p.getDate() + ", " + p.getPackageName() + ", " + p.getAppName() + " \n");
 		}
 	}
+
 
 	public class ExecutePackageTask extends AsyncTask<Context, PackageHistory, Boolean> {
 		private final String TAG = ExecutePackageTask.class.getSimpleName();

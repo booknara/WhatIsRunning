@@ -10,7 +10,11 @@
 	<string name="err_unexpected_error">Unexpected error.\nPlease try again.</string>
 
 	<string name="menu_start">Start</string>
-	<string name="menu_refresh">Refresh</string>
+	<string name="menu_view">View</string>
 	<string name="menu_clear">Clear</string>
+	<string name="menu_share">Share</string>
+
+	<string name="share_email_title" translatable="false">Running App History</string>
+	<string name="send_email_title">Send email...</string>
 
 </resources>

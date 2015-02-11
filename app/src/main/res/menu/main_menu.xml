@@ -2,8 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity" >
 
-	<item android:id="@+id/action_refresh"
-		  android:title="@string/menu_refresh"
+	<item android:id="@+id/action_view"
+		  android:title="@string/menu_view"
 		  android:showAsAction="never"/>
 
 	<item android:id="@+id/action_clear"
@@ -13,4 +13,8 @@
 	<item android:id="@+id/action_start"
         android:title="@string/menu_start"
         android:showAsAction="never"/>
+
+	<item android:id="@+id/action_share"
+		  android:title="@string/menu_share"
+		  android:showAsAction="never"/>
 </menu>
