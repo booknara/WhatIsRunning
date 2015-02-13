@@ -100,7 +100,7 @@ public class MainActivity extends Activity {
 			case R.id.action_share:
 				String body = historyView.getText().toString();
 				if (TextUtils.isEmpty(body))
-					Toast.makeText(this, "No contents", Toast.LENGTH_LONG).show();
+					Toast.makeText(this, R.string.no_history, Toast.LENGTH_LONG).show();
 				else
 					ShareUtils.share(this, body);
 				break;

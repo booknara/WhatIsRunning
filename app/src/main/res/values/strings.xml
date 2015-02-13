@@ -17,4 +17,5 @@
 	<string name="share_email_title" translatable="false">Running App History</string>
 	<string name="send_email_title">Send email...</string>
 
+	<string name="no_history">No history</string>
 </resources>
