@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -27,14 +28,12 @@ import android.widget.Toast;
 import com.booknara.whatisrunning.models.PackageHistory;
 import com.booknara.whatisrunning.utils.ShareUtils;
 
-import org.w3c.dom.Text;
-
 import io.realm.Realm;
 import io.realm.RealmResults;
 
 public class MainActivity extends Activity {
 	private static final String TAG = MainActivity.class.getSimpleName();
-	private final static int RUNNING_TIME_SEC = 60 * 3; // 3 mins
+	private final static int RUNNING_TIME_SEC = 60 * 3; // 3 minutes
 
 	// UI Component
 	private TextView historyView;
@@ -53,11 +52,6 @@ public class MainActivity extends Activity {
 		historyView.setMovementMethod(new ScrollingMovementMethod());
 
 		historyView.setText(R.string.click_start);
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
 	}
 
 	@Override
@@ -127,7 +121,7 @@ public class MainActivity extends Activity {
 	public class ExecutePackageTask extends AsyncTask<Context, PackageHistory, Boolean> {
 		private final String TAG = ExecutePackageTask.class.getSimpleName();
 
-		private Context context;
+		private final Context context;
 
 		public ExecutePackageTask(Context context) {
 			this.context = context;
@@ -144,7 +138,7 @@ public class MainActivity extends Activity {
 		@Override
 		protected void onProgressUpdate(PackageHistory... history) {
 			super.onProgressUpdate(history[0]);
-			insertPacakgeHistory(history[0].getDate(), history[0].getPackageName(), history[0].getAppName());
+			insertPackageHistory(history[0].getDate(), history[0].getPackageName(), history[0].getAppName());
 		}
 
 		@Override
@@ -159,7 +153,7 @@ public class MainActivity extends Activity {
 				}
 
 				try {
-					// 2 sec timesleep
+					// 2 seconds time sleep
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -254,7 +248,7 @@ public class MainActivity extends Activity {
 			return (String) (ai != null ? pm.getApplicationLabel(ai) : "(unknown)");
 		}
 
-		private void insertPacakgeHistory(String date, String packageName, String appName) {
+		private void insertPackageHistory(String date, String packageName, String appName) {
 			realm.beginTransaction();
 			PackageHistory history = realm.createObject(PackageHistory.class);
 			history.setDate(date);
@@ -264,7 +258,7 @@ public class MainActivity extends Activity {
 		}
 
 		private String getCurrentTime() {
-			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.getDefault());
 			Date date = new Date();
 
 			return dateFormat.format(date);
