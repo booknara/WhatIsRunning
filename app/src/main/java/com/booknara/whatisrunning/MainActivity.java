@@ -33,7 +33,9 @@ import io.realm.RealmResults;
 
 public class MainActivity extends Activity {
 	private static final String TAG = MainActivity.class.getSimpleName();
+
 	private final static int RUNNING_TIME_SEC = 60 * 3; // 3 minutes
+    private final static int CHECKING_INTERVAL_SEC = 1; // ? seconds
 
 	// UI Component
 	private TextView historyView;
@@ -89,7 +91,7 @@ public class MainActivity extends Activity {
 				clearRunningAppInfo();
 				break;
 			case R.id.action_start:
-				new ExecutePackageTask(ctx()).execute(ctx());
+				new ExecutePackageTask(this).execute(this);
 				break;
 			case R.id.action_share:
 				String body = historyView.getText().toString();
@@ -117,20 +119,17 @@ public class MainActivity extends Activity {
 		}
 	}
 
-
 	public class ExecutePackageTask extends AsyncTask<Context, PackageHistory, Boolean> {
 		private final String TAG = ExecutePackageTask.class.getSimpleName();
 
-		private final Context context;
+		private final Context mContext;
 
 		public ExecutePackageTask(Context context) {
-			this.context = context;
+			this.mContext = context;
 		}
 
 		@Override
 		protected void onPreExecute() {
-//			historyView.setText(getString(R.string.app_manual, RUNNING_TIME_SEC));
-//			startBtn.setEnabled(false);
 			startMenuItem.setEnabled(false);
 			clearMenuItem.setEnabled(false);
 		}
@@ -154,7 +153,7 @@ public class MainActivity extends Activity {
 
 				try {
 					// 2 seconds time sleep
-					Thread.sleep(2000);
+					Thread.sleep(CHECKING_INTERVAL_SEC * 1000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -170,10 +169,10 @@ public class MainActivity extends Activity {
 		protected void onPostExecute(Boolean result) {
 			try {
 				if (!result) {
-					Toast.makeText(ctx(), R.string.err_unexpected_error, Toast.LENGTH_LONG).show();
+					Toast.makeText(mContext, R.string.err_unexpected_error, Toast.LENGTH_LONG).show();
 					Log.e(TAG, "Execution Error");
 				} else {
-					Toast.makeText(ctx(), R.string.finished, Toast.LENGTH_LONG).show();
+					Toast.makeText(mContext, R.string.finished, Toast.LENGTH_LONG).show();
 					Log.i(TAG, "Execution Success");
 				}
 
@@ -263,10 +262,5 @@ public class MainActivity extends Activity {
 
 			return dateFormat.format(date);
 		}
-
-	}
-
-	public Context ctx() {
-		return this;
 	}
 }
