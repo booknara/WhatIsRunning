@@ -1,14 +1,6 @@
 package com.booknara.whatisrunning;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningAppProcessInfo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -25,8 +17,16 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.booknara.whatisrunning.logic.Android4RunningAppsHandler;
+import com.booknara.whatisrunning.logic.Android5RunningAppsHandler;
+import com.booknara.whatisrunning.logic.RunningAppsHandler;
 import com.booknara.whatisrunning.models.PackageHistory;
 import com.booknara.whatisrunning.utils.ShareUtils;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -123,9 +123,15 @@ public class MainActivity extends Activity {
 		private final String TAG = ExecutePackageTask.class.getSimpleName();
 
 		private final Context mContext;
+        private final RunningAppsHandler runningAppsHandler;
 
 		public ExecutePackageTask(Context context) {
 			this.mContext = context;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                runningAppsHandler = new Android5RunningAppsHandler(context);
+            } else {
+                runningAppsHandler = new Android4RunningAppsHandler(context);
+            }
 		}
 
 		@Override
@@ -136,26 +142,22 @@ public class MainActivity extends Activity {
 
 		@Override
 		protected void onProgressUpdate(PackageHistory... history) {
+            if (history == null)
+                return;
+
 			super.onProgressUpdate(history[0]);
 			insertPackageHistory(history[0].getDate(), history[0].getPackageName(), history[0].getAppName());
 		}
 
 		@Override
 		protected Boolean doInBackground(Context... params) {
-			final Context context = params[0].getApplicationContext();
 			for (int i = 0; i < RUNNING_TIME_SEC; i++) {
-				PackageHistory history;
-				if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-					history = getAppOnForegroundProcess(context);
-				} else {
-					history = getAppOnForeground(context);
-				}
+				PackageHistory history = getForegroundAppPackage();
 
 				try {
 					// 2 seconds time sleep
 					Thread.sleep(CHECKING_INTERVAL_SEC * 1000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
@@ -183,57 +185,22 @@ public class MainActivity extends Activity {
 			}
 		}
 
-		private PackageHistory getAppOnForeground(Context context) {
-			ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-			List<RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
-			if (appProcesses == null) {
-				return null;
-			}
+        private PackageHistory getForegroundAppPackage() {
+            ComponentName cn = runningAppsHandler.getRunningApplication();
 
-			ComponentName topActivity;
+            if (cn == null) {
+                return null;
+            }
 
-			List<ActivityManager.RunningTaskInfo> runningTasks = activityManager.getRunningTasks(10);
-			ActivityManager.RunningTaskInfo currentTask;
+            Log.i(TAG, cn.getPackageName());
 
-			if (runningTasks == null || runningTasks.size() <= 0)
-				return null;
+            String currentTime = getCurrentTime();
+            String packageName = cn.getPackageName();
+            String appName = getAppName(packageName);
+            Log.i(TAG, "Running package name : " + packageName + ", app name : " + appName);
 
-			currentTask = runningTasks.get(0);
-			topActivity = currentTask.topActivity;
-
-			if (topActivity == null)
-				return null;
-
-			String currentTime = getCurrentTime();
-			String packageName = topActivity.getPackageName();
-			String appName = getAppName(packageName);
-			Log.i(TAG, "Running package name : " + packageName + ", app name : " + appName + "Top Activity class name : " + topActivity.getClassName());
-
-			return new PackageHistory(currentTime, packageName, appName);
-		}
-
-		private PackageHistory getAppOnForegroundProcess(Context context) {
-			ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-		    List list;
-		    int i1 = 0;
-
-		    try {
-		        list = activityManager.getRunningAppProcesses();
-		    } catch (Exception exception) {
-		        return null;
-		    }
-
-		    if (((RunningAppProcessInfo)list.get(i1)).pkgList.length != 1) {
-		        return null;
-		    }
-
-			String currentTime = getCurrentTime();
-		    String packageName = ((android.app.ActivityManager.RunningAppProcessInfo)list.get(i1)).pkgList[0];
-			String appName = getAppName(packageName);
-			Log.i(TAG, "Running package name : " + packageName + ", app name : " + appName);
-
-			return new PackageHistory(currentTime, packageName, appName);
-		}
+            return new PackageHistory(currentTime, packageName, appName);
+        }
 
 		private String getAppName(String packageName) {
 			final PackageManager pm = getApplicationContext().getPackageManager();
@@ -252,7 +219,7 @@ public class MainActivity extends Activity {
 			PackageHistory history = realm.createObject(PackageHistory.class);
 			history.setDate(date);
 			history.setPackageName(packageName);
-			history.setAppName(appName);
+            history.setAppName(appName);
 			realm.commitTransaction();
 		}
 
