@@ -4,9 +4,12 @@ import android.app.usage.UsageEvents;
 import android.app.usage.UsageStatsManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.hardware.display.DisplayManager;
+import android.os.Build;
+import android.os.PowerManager;
+import android.view.Display;
 
 import com.booknara.whatisrunning.models.AppUsageEvent;
-import com.booknara.whatisrunning.utils.ScreenUtil;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -14,7 +17,7 @@ import java.util.List;
 /**
  * @author : Daehee Han(@daniel_booknara)
  */
-public class AndroidMRunningAppsHandler implements RunningAppsHandler {
+public class AndroidMRunningAppsHandler implements IRunningAppsHandler {
     private static final String TAG = AndroidMRunningAppsHandler.class.getSimpleName();
 
     private Context mContext;
@@ -39,7 +42,7 @@ public class AndroidMRunningAppsHandler implements RunningAppsHandler {
             if (mLastComponent == null)
                 return null;
 
-            if (!ScreenUtil.isScreenOn(mContext))
+            if (!isScreenOn(mContext))
                 return null;
         } else {
             mLastComponent = new ComponentName(lastEvent.getPkgName(), lastEvent.getPkgName());
@@ -80,5 +83,22 @@ public class AndroidMRunningAppsHandler implements RunningAppsHandler {
         }
 
         return lastAppUsageEvent;
+    }
+
+    private boolean isScreenOn(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+            DisplayManager dm = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+            boolean screenOn = false;
+            for (Display display : dm.getDisplays()) {
+                if (display.getState() != Display.STATE_OFF) {
+                    screenOn = true;
+                }
+            }
+            return screenOn;
+        } else {
+            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            //noinspection deprecation
+            return pm.isScreenOn();
+        }
     }
 }

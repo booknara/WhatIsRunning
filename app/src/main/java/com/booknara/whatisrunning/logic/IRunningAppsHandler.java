@@ -5,6 +5,6 @@ import android.content.ComponentName;
 /**
  * @author : Daehee Han(@daniel_booknara)
  */
-public interface RunningAppsHandler {
+public interface IRunningAppsHandler {
     ComponentName getRunningApplication();
 }

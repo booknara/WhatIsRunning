@@ -22,7 +22,7 @@ import android.widget.Toast;
 import com.booknara.whatisrunning.logic.Android4RunningAppsHandler;
 import com.booknara.whatisrunning.logic.Android5RunningAppsHandler;
 import com.booknara.whatisrunning.logic.AndroidMRunningAppsHandler;
-import com.booknara.whatisrunning.logic.RunningAppsHandler;
+import com.booknara.whatisrunning.logic.IRunningAppsHandler;
 import com.booknara.whatisrunning.models.PackageHistory;
 import com.booknara.whatisrunning.utils.ShareUtils;
 
@@ -130,7 +130,7 @@ public class MainActivity extends Activity {
 		private final String TAG = ExecutePackageTask.class.getSimpleName();
 
 		private final Context mContext;
-        private final RunningAppsHandler runningAppsHandler;
+        private final IRunningAppsHandler runningAppsHandler;
 
 		public ExecutePackageTask(Context context) {
 			this.mContext = context;

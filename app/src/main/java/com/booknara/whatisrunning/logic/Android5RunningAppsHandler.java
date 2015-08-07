@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author : Daehee Han(@daniel_booknara)
  */
-public class Android5RunningAppsHandler implements RunningAppsHandler {
+public class Android5RunningAppsHandler implements IRunningAppsHandler {
     private static final String TAG = Android5RunningAppsHandler.class.getSimpleName();
 
     private final ActivityManager activityManager;

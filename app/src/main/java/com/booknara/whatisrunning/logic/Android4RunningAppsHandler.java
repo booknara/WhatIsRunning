@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * @author : Daehee Han(@daniel_booknara)
  */
-public class Android4RunningAppsHandler implements RunningAppsHandler {
+public class Android4RunningAppsHandler implements IRunningAppsHandler {
     private static final String TAG = Android4RunningAppsHandler.class.getSimpleName();
 
     private final ActivityManager activityManager;
