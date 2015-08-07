@@ -5,7 +5,6 @@ dependencies {
     // Local binary dependency
     // Remote binary dependency
     compile 'io.realm:realm-android:0.78.0'
-    compile 'com.google.guava:guava:18.0'
 }
 
 android {

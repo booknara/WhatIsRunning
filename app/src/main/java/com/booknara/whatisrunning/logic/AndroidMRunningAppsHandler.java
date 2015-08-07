@@ -10,8 +10,8 @@ import android.os.PowerManager;
 import android.view.Display;
 
 import com.booknara.whatisrunning.models.AppUsageEvent;
-import com.google.common.collect.Lists;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -52,7 +52,7 @@ public class AndroidMRunningAppsHandler implements IRunningAppsHandler {
     }
 
     private List<AppUsageEvent> convertToFriendlyEvents(UsageEvents ls) {
-        List<AppUsageEvent> usageEventsFriendly = Lists.newArrayList();
+        List<AppUsageEvent> usageEventsFriendly = new ArrayList<>();
         while (ls.hasNextEvent()) {
             android.app.usage.UsageEvents.Event eventOut = new android.app.usage.UsageEvents.Event();
             ls.getNextEvent(eventOut);

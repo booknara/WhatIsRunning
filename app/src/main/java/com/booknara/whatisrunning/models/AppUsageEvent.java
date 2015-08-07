@@ -5,30 +5,7 @@ package com.booknara.whatisrunning.models;
  */
 import android.app.usage.UsageEvents;
 
-/**
- * This is a struct over the UsageEvents.Event class in Android Lollipop
- * usage stats monitoring.
- *
- * Since we need to do some complex monitoring and the real class is marked final, it seemed more testable to
- * make our own class that represented the data.
- *
- *
- */
 public class AppUsageEvent {
-
-    public static final String CHROME_APP_DOCUMENT_ACTIVITY_CLASS_NAME = "com.google.android.apps.chrome.document.DocumentActivity";
-    public static final String CHROME_APP_FIRST_RUN_ACTIVITY_STAGING_CLASS_NAME = "org.chromium.chrome.browser.firstrun.FirstRunActivityStaging";
-    public static final String CHROME_APP_MAIN_CLASS_NAME = "com.google.android.apps.chrome.Main";
-    public static final String COM_ANDROID_CHROME_PKG_NAME = "com.android.chrome";
-
-
-    public static final String ANDROID_LOLLIPOP_HOME_APP_PKG = "com.google.android.googlequicksearchbox";
-    public static final String ANDROID_LOLLIPOP_HOME_APP_CLASS = "com.google.android.launcher.GEL";
-
-    public static final int NONE_EVENT = 0;
-    public static final int MOVE_TO_FOREGROUND_EVENT = 1;
-    public static final int MOVE_TO_BACKGROUND_EVENT = 2;
-    public static final int CONFIGURATION_EVENT = 5;
 
     private String className;
     private String pkgName;
