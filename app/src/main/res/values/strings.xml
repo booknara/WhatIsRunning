@@ -13,6 +13,7 @@
 	<string name="menu_view">View</string>
 	<string name="menu_clear">Clear</string>
 	<string name="menu_share">Share</string>
+    <string name="menu_usage_access">Usage Access</string>
 
 	<string name="share_email_title" translatable="false">Running App History</string>
 	<string name="send_email_title">Send email...</string>

@@ -5,16 +5,17 @@ dependencies {
     // Local binary dependency
     // Remote binary dependency
     compile 'io.realm:realm-android:0.78.0'
+    compile 'com.google.guava:guava:18.0'
 }
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 22
     buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "com.booknara.whatisrunning"
-        minSdkVersion 11
-        targetSdkVersion 21
+        minSdkVersion 15
+        targetSdkVersion 22
         versionCode 1 // default version code
         versionName "0.1" // default version name
     }

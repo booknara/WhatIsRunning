@@ -17,4 +17,8 @@
 	<item android:id="@+id/action_share"
 		  android:title="@string/menu_share"
 		  android:showAsAction="never"/>
+
+    <item android:id="@+id/action_usage_access"
+          android:title="@string/menu_usage_access"
+          android:showAsAction="never"/>
 </menu>

@@ -3,12 +3,14 @@ package com.booknara.whatisrunning;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -19,6 +21,7 @@ import android.widget.Toast;
 
 import com.booknara.whatisrunning.logic.Android4RunningAppsHandler;
 import com.booknara.whatisrunning.logic.Android5RunningAppsHandler;
+import com.booknara.whatisrunning.logic.AndroidMRunningAppsHandler;
 import com.booknara.whatisrunning.logic.RunningAppsHandler;
 import com.booknara.whatisrunning.models.PackageHistory;
 import com.booknara.whatisrunning.utils.ShareUtils;
@@ -100,6 +103,10 @@ public class MainActivity extends Activity {
 				else
 					ShareUtils.share(this, body);
 				break;
+            case R.id.action_usage_access:
+                Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+                startActivity(intent);
+                break;
 		}
 
 		return true;
@@ -127,7 +134,9 @@ public class MainActivity extends Activity {
 
 		public ExecutePackageTask(Context context) {
 			this.mContext = context;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                runningAppsHandler = new AndroidMRunningAppsHandler(context);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 runningAppsHandler = new Android5RunningAppsHandler(context);
             } else {
                 runningAppsHandler = new Android4RunningAppsHandler(context);
@@ -138,15 +147,6 @@ public class MainActivity extends Activity {
 		protected void onPreExecute() {
 			startMenuItem.setEnabled(false);
 			clearMenuItem.setEnabled(false);
-		}
-
-		@Override
-		protected void onProgressUpdate(PackageHistory... history) {
-            if (history == null)
-                return;
-
-			super.onProgressUpdate(history[0]);
-			insertPackageHistory(history[0].getDate(), history[0].getPackageName(), history[0].getAppName());
 		}
 
 		@Override
@@ -161,13 +161,25 @@ public class MainActivity extends Activity {
 					e.printStackTrace();
 				}
 
+                if (history == null)
+                    continue;
+
 				publishProgress(history);
 			}
 
 			return true;
 		}
 
-		@Override
+        @Override
+        protected void onProgressUpdate(PackageHistory... history) {
+            if (history == null)
+                return;
+
+            super.onProgressUpdate(history[0]);
+            insertPackageHistory(history[0].getDate(), history[0].getPackageName(), history[0].getAppName());
+        }
+
+        @Override
 		protected void onPostExecute(Boolean result) {
 			try {
 				if (!result) {
@@ -188,9 +200,8 @@ public class MainActivity extends Activity {
         private PackageHistory getForegroundAppPackage() {
             ComponentName cn = runningAppsHandler.getRunningApplication();
 
-            if (cn == null) {
+            if (cn == null)
                 return null;
-            }
 
             Log.i(TAG, cn.getPackageName());
 
